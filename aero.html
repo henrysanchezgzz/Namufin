@@ -61,8 +61,8 @@ body.light .bg-dark{background:#f2f3f7}
 @media (min-width:900px){.app{max-width:980px}.cols{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}}
 
 /* barra superior */
-.topbar{position:sticky;top:calc(env(safe-area-inset-top) + 40px);z-index:40;display:flex;align-items:center;gap:10px;margin:calc(env(safe-area-inset-top) + 40px) -18px 4px;padding:6px 18px 8px;border-radius:22px;transition:background .3s}
-.topbar.scrolled{background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(20px) saturate(1.5);-webkit-backdrop-filter:blur(20px) saturate(1.5)}
+.topbar{position:relative;z-index:40;display:flex;align-items:center;gap:10px;margin:calc(env(safe-area-inset-top) + 34px) -18px 4px;padding:6px 18px 8px}
+
 .avatar{width:40px;height:40px;border-radius:50%;border:0;padding:0;overflow:hidden;cursor:pointer;flex:none;background:transparent;box-shadow:0 0 0 1px var(--line)}
 .avatar img{width:100%;height:100%;display:block}
 .month{flex:1;display:flex;align-items:center;justify-content:space-between;height:42px;border-radius:99px;background:var(--fill-2);padding:0 4px}
@@ -353,7 +353,7 @@ body.aero .ptitle{color:#0b3552}
 /* barra superior e inferior */
 body.aero .month,body.aero .rbtn{background:linear-gradient(180deg,#fff 0%,#eef8ff 50%,#dcefff 51%,#f2faff 100%);border:1px solid #fff;box-shadow:0 4px 12px -4px rgba(8,70,120,.4)}
 body.aero .avatar{box-shadow:0 4px 12px -4px rgba(8,70,120,.5)}
-body.aero .topbar.scrolled{background:rgba(190,232,251,.88)}
+body.aero 
 body.aero .tabbar{border:1px solid #fff;box-shadow:0 10px 30px -10px rgba(8,70,120,.5),inset 0 1px 0 #fff}
 body.aero .tabbar a{color:var(--ink-2)}
 body.aero .tabbar a.on{color:var(--ink)}
@@ -1043,7 +1043,7 @@ const flip=()=>{const l=$('#mLbl');l.classList.remove('flip');void l.offsetWidth
 $('#mPrev').onclick=()=>{cur=addM(cur,-1);render(true);slide('r');flip()};$('#mNext').onclick=()=>{cur=addM(cur,1);render(true);slide('l');flip()};
 $('#fab').onclick=()=>{movSheet(null,'egreso')};$('#btnSet').onclick=settingsSheet;
 $('#btnEye').onclick=()=>{HIDE=!HIDE;prefs.hide=HIDE;savePrefs();render(false);toast(HIDE?'Montos ocultos':'Montos visibles')};
-addEventListener('scroll',()=>$('#topbar').classList.toggle('scrolled',scrollY>8),{passive:true});
+;
 ['gesturestart','gesturechange','gestureend'].forEach(t=>document.addEventListener(t,e=>e.preventDefault(),{passive:false}));
 document.addEventListener('touchmove',e=>{if(e.touches.length>1)e.preventDefault()},{passive:false});
 const isField=el=>el&&el.closest&&el.closest('input,textarea,.calc');

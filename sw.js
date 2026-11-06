@@ -1,5 +1,5 @@
 // Permite abrir la app sin internet. Cambia VERSION cuando subas una actualización.
-const VERSION = 'namufin-v18';
+const VERSION = 'namufin-v19';
 const FILES = ['./', './index.html', './claro.html', './aero.html', './manifest-claro.webmanifest', './manifest-aero.webmanifest', './manifest.webmanifest', './icon-180.png', './icon-192.png', './icon-512.png'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(VERSION).then(c => c.addAll(FILES))); self.skipWaiting(); });
 self.addEventListener('activate', e => {
