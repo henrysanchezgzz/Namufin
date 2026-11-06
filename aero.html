@@ -61,7 +61,7 @@ body.light .bg-dark{background:#f2f3f7}
 @media (min-width:900px){.app{max-width:980px}.cols{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}}
 
 /* barra superior */
-.topbar{position:relative;z-index:40;display:flex;align-items:center;gap:10px;margin:calc(env(safe-area-inset-top) + 34px) -18px 4px;padding:6px 18px 8px}
+.topbar{position:fixed;z-index:40;display:flex;align-items:center;gap:10px}
 
 .avatar{width:40px;height:40px;border-radius:50%;border:0;padding:0;overflow:hidden;cursor:pointer;flex:none;background:transparent;box-shadow:0 0 0 1px var(--line)}
 .avatar img{width:100%;height:100%;display:block}
@@ -444,6 +444,31 @@ body.aero .tabbar a.on .tic{color:#fff}
 .bar span,.nbars span{transition:width .9s var(--out)}
 .vbars span,.wbars span,.mcol span{transition:height .9s var(--out)}
 body.leaving .app,body.leaving .tabbar{transition:opacity .25s;opacity:0}
+/* ===== desplazamiento interno, barra superior fija con difuminado y barra inferior dinámica ===== */
+html,body{height:100%;overflow:hidden}
+.app{position:fixed;top:0;bottom:0;left:0;right:0;margin:0 auto;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;scrollbar-width:none;
+  padding-top:calc(env(safe-area-inset-top) + 64px)}
+.app::-webkit-scrollbar{display:none;width:0;height:0}
+.topbar{position:fixed!important;top:0;left:0;right:0;margin:0 auto!important;max-width:560px;padding:calc(env(safe-area-inset-top) + 6px) 18px 10px!important;z-index:45}
+@media (min-width:700px){.topbar{max-width:980px}}
+.topbar::before{content:"";position:absolute;left:0;right:0;top:0;bottom:-28px;z-index:-1;pointer-events:none;opacity:0;transition:opacity .3s var(--out);
+  background:linear-gradient(180deg,color-mix(in srgb,var(--bg) 82%,transparent) 0%,color-mix(in srgb,var(--bg) 45%,transparent) 65%,transparent 100%);
+  -webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);
+  -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 62%,transparent 100%);mask-image:linear-gradient(180deg,#000 0%,#000 62%,transparent 100%)}
+body.aero .topbar::before{background:linear-gradient(180deg,rgba(150,215,248,.8) 0%,rgba(190,232,251,.45) 65%,transparent 100%)}
+body.light .topbar::before{background:linear-gradient(180deg,rgba(238,240,247,.85) 0%,rgba(238,240,247,.5) 65%,transparent 100%)}
+body.under .topbar::before{opacity:1}
+.topbar .month,.topbar .rbtn,.topbar .avatar{transition:transform .35s var(--out),box-shadow .3s}
+/* barra inferior compacta al bajar */
+.tabbar{transition:padding .4s var(--out),border-radius .4s var(--out),left .4s var(--out),right .4s var(--out),width .4s var(--out),bottom .4s var(--out)}
+.tabbar a span:last-child{display:block;max-height:16px;opacity:1;transition:max-height .35s var(--out),opacity .2s,margin .35s var(--out)}
+.tab-add{transition:transform .2s var(--out),width .4s var(--out),height .4s var(--out)}
+body.mini .tabbar{left:56px;right:56px;padding:3px 6px;bottom:calc(6px + env(safe-area-inset-bottom))}
+body.mini .tabbar a{padding:6px 0}
+body.mini .tabbar a span:last-child{max-height:0;opacity:0;margin-top:-2px}
+body.mini .tab-add{width:38px;height:38px}
+body.mini .tab-add svg{width:20px;height:20px}
+@media (min-width:700px){body.mini .tabbar{left:50%;right:auto;width:340px}}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 </style>
 </head>
@@ -647,7 +672,10 @@ function themeAssets(){const t=prefs.theme==='light'||prefs.theme==='aero'?prefs
   $('#btnSet img').src=`logo-${t}.png`;
 }
 function applyTheme(){document.documentElement.style.background=HTMLBG[prefs.theme]||HTMLBG.dark;themeAssets();setView(view)}
-let firstView=true;
+let firstView=true;const SC=document.querySelector('.app');
+let mini=false,lastY=0;function setMini(m){if(m===mini)return;mini=m;document.body.classList.toggle('mini',m);const t0=performance.now();(function f(){moveInd(true);if(performance.now()-t0<480)requestAnimationFrame(f)})()}
+SC.addEventListener('scroll',()=>{const y=SC.scrollTop,max=SC.scrollHeight-SC.clientHeight;document.body.classList.toggle('under',y>4);
+  if(y<40||y>=max-4)setMini(false);else if(y>lastY+6)setMini(true);else if(y<lastY-6)setMini(false);if(Math.abs(y-lastY)>6)lastY=y},{passive:true});
 function moveInd(instant){const a=$(`#tabs a[data-v="${view}"]`),ind=$('#tabInd');if(!a||!ind)return;const t=$('.tic',a),tb=$('#tabs').getBoundingClientRect(),r=t.getBoundingClientRect();
   if(instant){ind.style.transition='none'}ind.style.width=r.width+'px';ind.style.transform=`translate(${r.left-tb.left}px,${r.top-tb.top-10}px)`;if(instant){ind.offsetWidth;ind.style.transition=''}}
 addEventListener('resize',()=>moveInd(true));
@@ -655,7 +683,7 @@ function setView(v){if(!VIEWS.includes(v))v='inicio';const dir=VIEWS.indexOf(v)-
   document.body.className=themeCls()+({inicio:'v-inicio',movimientos:'v-movs',ahorro:'v-ahorro',reportes:'v-reportes'}[v]);
   const bg=prefs.theme==='aero'?'bg-aero':v==='inicio'?'bg-inicio':v==='ahorro'?'bg-ahorro':'bg-dark';$$('.bgs>div').forEach(d=>d.classList.toggle('on',d.classList.contains(bg)));
   $$('#tabs a').forEach(a=>{const on=a.dataset.v===v;a.classList.toggle('on',on);if(on&&!firstView){a.classList.remove('tbump');void a.offsetWidth;a.classList.add('tbump')}});
-  moveInd(firstView);scrollTo(0,0);render(true);if(!firstView&&dir)slide(dir>0?'l':'r');firstView=false}
+  moveInd(firstView);SC.scrollTop=0;setMini(false);render(true);if(!firstView&&dir)slide(dir>0?'l':'r');firstView=false}
 function slide(d){const v=$('#view');v.classList.remove('go-l','go-r');void v.offsetWidth;v.classList.add('go-'+d)}
 addEventListener('hashchange',()=>setView(location.hash.slice(1)));
 
