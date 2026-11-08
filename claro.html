@@ -448,6 +448,7 @@ body.leaving .app,body.leaving .tabbar{transition:opacity .25s;opacity:0}
 html,body{height:100%;overflow:hidden}
 .app{position:fixed;top:0;bottom:0;left:0;right:0;margin:0 auto;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;scrollbar-width:none}
 .app::-webkit-scrollbar{display:none;width:0;height:0}
+#bounce{pointer-events:none}
 .topbar{position:relative!important;margin:calc(env(safe-area-inset-top) + 30px) -18px 4px!important;padding:6px 18px 8px!important}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 </style>
@@ -653,6 +654,10 @@ function themeAssets(){const t=prefs.theme==='light'||prefs.theme==='aero'?prefs
 }
 function applyTheme(){document.documentElement.style.background=HTMLBG[prefs.theme]||HTMLBG.dark;themeAssets();setView(view)}
 let firstView=true;const SC=document.querySelector('.app');
+/* rebote: si el contenido no llena la pantalla, se agrega 1px de más para que iPhone permita deslizar y regresar */
+const BN=document.createElement('div');BN.id='bounce';SC.appendChild(BN);
+function fitBounce(){const pb=parseFloat(getComputedStyle(SC).paddingBottom)||0,h=Math.max(0,Math.ceil(SC.clientHeight-BN.offsetTop-pb)+1);if(h!==BN.offsetHeight)BN.style.height=h+'px'}
+new ResizeObserver(fitBounce).observe($('#view'));addEventListener('resize',fitBounce);
 
 function moveInd(instant){const a=$(`#tabs a[data-v="${view}"]`),ind=$('#tabInd');if(!a||!ind)return;const t=$('.tic',a),tb=$('#tabs').getBoundingClientRect(),r=t.getBoundingClientRect();
   if(instant){ind.style.transition='none'}ind.style.width=r.width+'px';ind.style.transform=`translate(${r.left-tb.left}px,${r.top-tb.top-10}px)`;if(instant){ind.offsetWidth;ind.style.transition=''}}
